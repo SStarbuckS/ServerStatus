@@ -61,8 +61,10 @@ class CMain
 			int64_t m_time_10086;
 			int64_t m_NetworkRx;
 			int64_t m_NetworkTx;
-			int64_t m_NetworkIN;
-			int64_t m_NetworkOUT;
+			int64_t m_NetworkIN;  //总下载流量
+			int64_t m_NetworkOUT;  //总上传流量
+			int64_t m_NetworkIN_MON;  //月下载流量
+			int64_t m_NetworkOUT_MON;  //月上传流量
 			int64_t m_MemTotal;
 			int64_t m_MemUsed;
 			int64_t m_SwapTotal;

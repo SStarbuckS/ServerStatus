@@ -65,17 +65,15 @@ def get_cpu():
 def liuliang():
     NET_IN = 0
     NET_OUT = 0
-    net = psutil.net_io_counters(pernic=True)
-    for k, v in net.items():
-        if 'lo' in k or 'tun' in k \
-                or 'docker' in k or 'veth' in k \
-                or 'br-' in k or 'vmbr' in k \
-                or 'vnet' in k or 'kube' in k:
-            continue
-        else:
-            NET_IN += v[1]
-            NET_OUT += v[0]
-    return NET_IN, NET_OUT
+    NET_IN_MON = 0
+    NET_OUT_MON = 0
+    vnstat=os.popen('vnstat --oneline b').readline()
+    mdata=vnstat.split(";")
+    NET_IN=int(mdata[12])
+    NET_OUT=int(mdata[13])
+    NET_IN_MON=int(mdata[8])
+    NET_OUT_MON=int(mdata[9])
+    return NET_IN, NET_OUT, NET_IN_MON, NET_OUT_MON
 
 def tupd():
     '''
@@ -342,7 +340,7 @@ if __name__ == '__main__':
 
             while 1:
                 CPU = get_cpu()
-                NET_IN, NET_OUT = liuliang()
+                NET_IN, NET_OUT, NET_IN_MON, NET_OUT_MON = liuliang()
                 Uptime = get_uptime()
                 Load_1, Load_5, Load_15 = os.getloadavg() if 'linux' in sys.platform else (0.0, 0.0, 0.0)
                 MemoryTotal, MemoryUsed = get_memory()
@@ -369,8 +367,10 @@ if __name__ == '__main__':
                 array['cpu'] = CPU
                 array['network_rx'] = netSpeed.get("netrx")
                 array['network_tx'] = netSpeed.get("nettx")
-                array['network_in'] = NET_IN
-                array['network_out'] = NET_OUT
+                array['network_in'] = NET_IN  #总上传流量
+                array['network_out'] = NET_OUT  #总出口流量
+                array["network_in_mon"] = NET_IN_MON  #月上传流量
+                array["network_out_mon"] = NET_OUT_MON  #月出口流量
                 # todo：兼容旧版本，下个版本删除ip_status
                 array['ip_status'] = True
                 array['ping_10010'] = lostRate.get('10010') * 100
